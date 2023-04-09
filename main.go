@@ -34,27 +34,27 @@ func demoQsort() {
 }
 
 func main() {
-
 	t := Tree{}
-	t.insert(5)
-	t.printTree()
-
-	t.insert(4)
-	t.printTree()
-
-	t.insert(10)
-	t.printTree()
-
-	t.insert(3)
-	t.printTree()
-
-	t.insert(23)
-	t.printTree()
-
-	t.insert(1)
-	t.insert(4)
-	t.insert(6)
-	t.insert(2)
-	t.insert(0)
-	t.printTree()
+	for i := 0; i < 20; i++ {
+		toInsert := rand.Intn(100)
+		fmt.Println("Insertion", toInsert)
+		t.insert(toInsert)
+		t.printTree()
+	}
+	//t.insert(5)
+	//t.printTree()
+	//t.insert(4)
+	//t.printTree()
+	//t.insert(10)
+	//t.printTree()
+	//t.insert(3)
+	//t.printTree()
+	//t.insert(23)
+	//t.printTree()
+	//t.insert(1)
+	//t.insert(4)
+	//t.insert(6)
+	//t.insert(2)
+	//t.insert(0)
+	//t.printTree()
 }

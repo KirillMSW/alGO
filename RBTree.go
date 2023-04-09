@@ -28,7 +28,7 @@ func (node *Node) getUncle() *Node {
 	if scan.parent == nil {
 		return nil
 	}
-	if scan.parent.right == scan {
+	if scan.getDirection() == "RIGHT" {
 		return scan.parent.left
 	} else {
 		return scan.parent.right
@@ -47,7 +47,7 @@ func (node *Node) leftTurn() {
 	pivot := node.right
 	pivot.parent = node.parent
 	if node.parent != nil {
-		if node.parent.left == node {
+		if node.getDirection() == "LEFT" {
 			node.parent.left = pivot
 		} else {
 			node.parent.right = pivot
@@ -65,7 +65,7 @@ func (node *Node) rightTurn() {
 	pivot := node.left
 	pivot.parent = node.parent
 	if node.parent != nil {
-		if node.parent.left == node {
+		if node.getDirection() == "LEFT" {
 			node.parent.left = pivot
 		} else {
 			node.parent.right = pivot
@@ -107,19 +107,25 @@ func (tree *Tree) balanceInsertion(node *Node) {
 			tree.balanceInsertion(grandfather)
 		} else {
 			grandfather := node.parent.parent
-			if node == node.parent.right && node.parent == grandfather.left {
+			if node.getDirection() == "RIGHT" && node.parent.getDirection() == "LEFT" {
 				node.parent.leftTurn()
 				node = node.left
-			} else if node == node.parent.left && node.parent == grandfather.right {
+			} else if node.getDirection() == "LEFT" && node.parent.getDirection() == "RIGHT" {
 				node.parent.rightTurn()
 				node = node.right
 			}
 
 			node.parent.color = "BLACK"
 			grandfather.color = "RED"
-			if node == node.parent.right && node.parent == grandfather.right {
+			if node.getDirection() == "RIGHT" && node.parent == grandfather.right {
+				if grandfather == tree.root {
+					tree.root = grandfather.right
+				}
 				grandfather.leftTurn()
-			} else if node == node.parent.left && node.parent == grandfather.left {
+			} else if node.getDirection() == "LEFT" && node.parent == grandfather.left {
+				if grandfather == tree.root {
+					tree.root = grandfather.left
+				}
 				grandfather.rightTurn()
 			}
 		}
@@ -178,6 +184,22 @@ func getTreeSlice(node *Node, nodeSlice *[]*LeveledNode, level int) {
 	}
 }
 
+func (node *Node) getDirection() string {
+	if node == node.parent.left {
+		return "LEFT"
+	} else {
+		return "RIGHT"
+	}
+}
+
+func findMin(node *Node) *Node {
+	scan := node
+	for scan.left != nil {
+		scan = scan.left
+	}
+	return scan
+}
+
 func (tree *Tree) printTree() {
 	colorReset := "\033[0m"
 	colorRed := "\033[31m"
@@ -207,4 +229,71 @@ func (tree *Tree) printTree() {
 		fmt.Println()
 	}
 	fmt.Println()
+}
+
+func (tree *Tree) find(value int) *Node {
+	scan := tree.root
+	for scan.value != value {
+		if value < scan.value && scan.left != nil {
+			scan = scan.left
+		} else if value > scan.value && scan.right != nil {
+			scan = scan.right
+		} else {
+			fmt.Println("No such value")
+			return nil
+		}
+	}
+	return scan
+}
+
+func (tree *Tree) delete(value int) {
+	nodeToDelete := tree.find(value)
+	if nodeToDelete == nil {
+		return
+	}
+	if nodeToDelete.left == nil && nodeToDelete.right == nil {
+		if nodeToDelete == tree.root {
+			tree.root = nil
+		} else {
+			if nodeToDelete.getDirection() == "LEFT" {
+				nodeToDelete.parent.left = nil
+			} else {
+				nodeToDelete.parent.right = nil
+			}
+		}
+	} else if nodeToDelete.left != nil && nodeToDelete.right != nil {
+		replacer := findMin(nodeToDelete.right)
+		nodeToDelete.value = replacer.value
+		if replacer.right != nil {
+			replacer.right.parent = replacer.parent
+			if replacer.getDirection() == "RIGHT" {
+				replacer.parent.right = replacer.right
+			} else {
+				replacer.parent.left = replacer.right
+			}
+		}
+
+	} else {
+		if nodeToDelete.left != nil {
+			nodeToDelete.left.parent = nodeToDelete.parent
+			if nodeToDelete == tree.root {
+				tree.root = nodeToDelete.left
+			} else if nodeToDelete.getDirection() == "LEFT" {
+				nodeToDelete.parent.left = nodeToDelete.left
+			} else {
+				nodeToDelete.parent.right = nodeToDelete.left
+			}
+		} else {
+			nodeToDelete.right.parent = nodeToDelete.parent
+			if nodeToDelete == tree.root {
+				tree.root = nodeToDelete.right
+			} else if nodeToDelete.getDirection() == "LEFT" {
+				nodeToDelete.parent.left = nodeToDelete.right
+			} else {
+				nodeToDelete.parent.right = nodeToDelete.right
+			}
+		}
+
+	}
+
 }
