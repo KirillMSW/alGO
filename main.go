@@ -24,11 +24,26 @@ func qsort(arr []int, beg, end int) {
 	qsort(arr, beg, rscan)
 	qsort(arr, rscan+1, end)
 }
-func main() {
+func demoQsort() {
 	n := 30
 	rand.Seed(time.Now().Unix())
 	var arr = rand.Perm(n)
 	fmt.Println(arr)
 	qsort(arr, 0, n-1)
 	fmt.Println(arr)
+}
+
+func main() {
+
+	t := Tree{}
+	t.insert(5)
+	t.insert(4)
+	t.insert(10)
+	t.insert(3)
+	t.insert(23)
+	t.insert(1)
+	t.insert(4)
+	t.insert(6)
+	t.insert(2)
+
 }
