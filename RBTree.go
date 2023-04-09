@@ -1,14 +1,26 @@
 package main
 
+import (
+	"fmt"
+	"math"
+	"strings"
+)
+
 type Tree struct {
 	root *Node
 }
+
 type Node struct {
 	parent *Node
 	left   *Node
 	right  *Node
 	color  string //0 - черный, 1 - красный
 	value  int
+}
+
+type LeveledNode struct {
+	node  *Node
+	level int
 }
 
 func (node *Node) getUncle() *Node {
@@ -156,4 +168,43 @@ func (tree *Tree) insert(value int) {
 		}
 		tree.balanceInsertion(newNode)
 	}
+}
+
+func getTreeSlice(node *Node, nodeSlice *[]*LeveledNode, level int) {
+	*nodeSlice = append(*nodeSlice, &LeveledNode{node, level})
+	if node != nil {
+		getTreeSlice(node.left, nodeSlice, level+1)
+		getTreeSlice(node.right, nodeSlice, level+1)
+	}
+}
+
+func (tree *Tree) printTree() {
+	colorReset := "\033[0m"
+	colorRed := "\033[31m"
+
+	var nodeSlice []*LeveledNode
+	treeHeight := getHeight(tree.root)
+	getTreeSlice(tree.root, &nodeSlice, 0)
+	for i := 0; i < treeHeight; i++ {
+		spaceNum := math.Pow(2, float64(treeHeight-i-1)) - 1
+		spacing := strings.Repeat("  ", int(spaceNum))
+		for j := 0; j < len(nodeSlice); j++ {
+			if nodeSlice[j].node != nil {
+				if nodeSlice[j].level == i {
+					if nodeSlice[j].node.color == "RED" {
+						fmt.Printf("%s%s%02d%s", colorRed, spacing, nodeSlice[j].node.value, spacing)
+					} else {
+						fmt.Printf("%s%s%02d%s", colorReset, spacing, nodeSlice[j].node.value, spacing)
+					}
+
+					fmt.Print("  ")
+				}
+			} else if nodeSlice[j].level == i {
+				fmt.Print("  ")
+				fmt.Print("  ")
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println()
 }
